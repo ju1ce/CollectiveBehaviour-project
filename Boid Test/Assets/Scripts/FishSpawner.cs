@@ -12,6 +12,12 @@ public class FishSpawner : MonoBehaviour
     public float minSpeed = 2F;
     public float maxSpeed = 4F;
     public float maxAccel = 2F;
+    public float sepWeight = 5F;
+    public float sepRadius = 2F;
+    public float aliWeight = 0.3F;
+    public float aliRadius = 25F;
+    public float cohWeight = 0.01F;
+    public float cohRadius = 100F;
 
     void Start()
     {
@@ -42,10 +48,12 @@ public class FishSpawner : MonoBehaviour
                 min_speed = minSpeed,
                 max_speed = maxSpeed,
                 max_accel = maxAccel,
-                //direction = ,
-                sep_rad = 1F,
-                sep_weight = 5f,
-
+                sep_rad = sepRadius,
+                sep_weight = sepWeight,
+                ali_rad = aliRadius,
+                ali_weight = aliWeight,
+                coh_rad = cohRadius,
+                coh_weight = cohWeight,
             });
         }
     }

@@ -7,51 +7,26 @@ using Unity.Collections;
 
 public partial class FishSystem : SystemBase
 {
-    /*protected override void OnStartRunning()
-    {
-        //base.OnCreate();
-        Entities.ForEach((ref Rotation rotation, ref PhysicsVelocity velocity, in Fish fishy) =>
-        {
-            rotation.Value = quaternion.AxisAngle(math.up(), fishy.direction);
-            velocity.Linear = math.mul(rotation.Value, math.right());
-            //velocity.Linear.x *= 1f;
-            //velocity.Linear.y *= 0f;
-            //velocity.Linear.z *= 0f;
-            //rotation.Value = math.mul(
-            //    math.normalize(rotation.Value),
-            //quaternion.AxisAngle(math.up(), rotationSpeed.RadiansPerSecond * deltaTime));
-            //    quaternion.AxisAngle(math.up(), fishy.direction));
-        }).Run();
-    }*/
     private EntityQuery query;
     protected override void OnUpdate()
     {
         float deltaTime = Time.DeltaTime;
 
-        //float3[] fishPositions = [];
-        // find close fishes
-        //NativeArray<float3> fishPositions = new NativeArray<float3>();
-        query = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>());
-        //var entityManager = World.Active.EntityManager;
-        //var allEntities = entityManager.GetAllEntities();
-        //fishPositions[3] = new float3(1f, 1f, 1f);
+        query = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<PhysicsVelocity>());
+
         Allocator alloc = Unity.Collections.Allocator.TempJob;
         NativeArray<Translation> fishes = query.ToComponentDataArray<Translation>(alloc);
-        
-        //var fishes = m_Group.ToEntityArray(Unity.Collections.Allocator.TempJob);
+        NativeArray<PhysicsVelocity> fishVelocity = query.ToComponentDataArray<PhysicsVelocity>(alloc);
 
-        //arr[4]
-        /*Entities.ForEach((ref Translation position, in Fish fishy) =>
-        {
-            //float3 pos = position.Value;
-            //fishPositions[3] = new float3(2f,2f,2f);
-            fishPositions.
-        }).Run();//.ScheduleParallel() or sth
-        return;*/
         Entities.ForEach((ref Rotation rotation, ref PhysicsVelocity velocity,in Translation trans, in Fish fishy) =>
             {
                 float3 sep_drive = new float3(0f, 0f, 0f);
-                int count = 0;
+                float3 ali_drive = new float3(0f, 0f, 0f);
+                float3 coh_drive = new float3(0f, 0f, 0f);
+
+                int sep_count = 0;
+                int ali_count = 0;
+                int coh_count = 0;
                 for(int i=0; i<fishes.Length; i++)
                 {
                     float3 dir = fishes[i].Value - trans.Value;
@@ -60,23 +35,31 @@ public partial class FishSystem : SystemBase
                     if (i != fishy.id && dist <= fishy.sep_rad)
                     {
                         sep_drive += (-dir * (1 - (dist / fishy.sep_rad)));
-                        count++;
+                        sep_count++;
+                    }else if (i != fishy.id && dist <= fishy.ali_rad)
+                    {
+                        ali_drive += fishVelocity[i].Linear;
+                        ali_count++;
+                    }else if (i != fishy.id && dist <= fishy.coh_rad)
+                    {
+                        coh_drive += dir;
+                        coh_count++;
                     }
                 }
-                if (count == 0)
-                    sep_drive *= 0f;
-                else
-                    sep_drive /= count;
+                sep_drive = sep_count == 0 ? sep_drive * 0f : sep_drive / sep_count;
+
+                ali_drive = ali_count == 0 ? ali_drive * 0f : ali_drive / ali_count;
+                ali_drive -= velocity.Linear;
+
+                coh_drive = coh_count == 0 ? coh_drive * 0f : coh_drive / coh_count;
 
                 //calculate drive
-                float3 drive = fishy.sep_weight * sep_drive;
-
+                float3 drive = fishy.sep_weight * sep_drive + fishy.ali_weight * ali_drive + fishy.coh_weight * coh_drive;
 
                 if(math.length(drive) > fishy.max_accel)
                 {
                     drive = math.normalize(drive) * fishy.max_accel;
                 }
-
                 velocity.Linear += drive * deltaTime;
 
                 if(math.length(velocity.Linear) > fishy.max_speed)
@@ -91,9 +74,9 @@ public partial class FishSystem : SystemBase
                 rotation.Value = math.mul(rotation.Value, quaternion.Euler(0f, 1.57f, 0f));
 
 
-
             }).Run();
 
         fishes.Dispose();
+        fishVelocity.Dispose();
     }
 }
