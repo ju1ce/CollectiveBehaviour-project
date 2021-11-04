@@ -19,6 +19,8 @@ public class FishSpawner : MonoBehaviour
     public float cohWeight = 0.01F;
     public float cohRadius = 100F;
 
+    public float FOV = 360;
+
     void Start()
     {
         // Create entity prefab from the game object hierarchy once
@@ -35,16 +37,19 @@ public class FishSpawner : MonoBehaviour
             Vector3 position = transform.TransformPoint(new float3(UnityEngine.Random.Range(-Border, Border), 0F, UnityEngine.Random.Range(-Border, Border)));
             entityManager.SetComponentData(instance, new Translation { Value = position });
 
-            quaternion rotVal = quaternion.AxisAngle(math.up(), UnityEngine.Random.Range(0F, 6F));
+            quaternion rotVal = quaternion.AxisAngle(math.up(), UnityEngine.Random.Range(0F, 1F));
             entityManager.SetComponentData(instance, new Rotation { Value = rotVal});
 
             entityManager.AddComponentData(instance, new PhysicsVelocity());
             entityManager.SetComponentData(instance, new PhysicsVelocity { Linear = math.mul(rotVal, math.left()) });
 
+            Debug.Log(math.cos((FOV / 2) * 0.0174533f));
+
             entityManager.AddComponentData(instance, new Fish());
             entityManager.SetComponentData(instance, new Fish
             {
                 id = x,
+                fov = math.cos((FOV/2)* 0.0174533f),
                 min_speed = minSpeed,
                 max_speed = maxSpeed,
                 max_accel = maxAccel,

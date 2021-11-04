@@ -27,22 +27,31 @@ public partial class FishSystem : SystemBase
                 int sep_count = 0;
                 int ali_count = 0;
                 int coh_count = 0;
+
                 for(int i=0; i<fishes.Length; i++)
                 {
                     float3 dir = fishes[i].Value - trans.Value;
                     float dist = math.length(dir);
                     dir = math.normalize(dir);
-                    if (i != fishy.id && dist <= fishy.sep_rad)
+
+                    float fov = math.dot(dir, math.normalize(velocity.Linear));
+
+                    if(i == fishy.id || fov < fishy.fov)
+                    {
+                        continue;
+                    }
+
+                    if (dist <= fishy.sep_rad)
                     {
                         sep_drive += (-dir * (1 - (dist / fishy.sep_rad)));
                         sep_count++;
-                    }else if (i != fishy.id && dist <= fishy.ali_rad)
+                    }else if (dist <= fishy.ali_rad)
                     {
                         ali_drive += fishVelocity[i].Linear;
                         ali_count++;
-                    }else if (i != fishy.id && dist <= fishy.coh_rad)
+                    }else if (dist <= fishy.coh_rad)
                     {
-                        coh_drive += dir;
+                        coh_drive += dir*dist;
                         coh_count++;
                     }
                 }

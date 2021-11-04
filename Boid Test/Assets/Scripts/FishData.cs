@@ -4,6 +4,7 @@ using Unity.Entities;
 public struct Fish : IComponentData
 {
     public int id;
+    public float fov;
     //public float direction;
     public float max_accel;
     public float min_speed;
@@ -20,5 +21,7 @@ public struct Fish : IComponentData
     // cohesion
     public float coh_rad;
     public float coh_weight;
+
+
 
 }
