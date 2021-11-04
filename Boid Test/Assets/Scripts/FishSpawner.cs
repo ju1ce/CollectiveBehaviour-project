@@ -2,13 +2,16 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Unity.Physics;
 
 public class FishSpawner : MonoBehaviour
 {
     public GameObject Prefab;
     public int Count = 10;
     public float Border = 3F;
-    public float RotSpeed = 3F;
+    public float minSpeed = 2F;
+    public float maxSpeed = 4F;
+    public float maxAccel = 2F;
 
     void Start()
     {
@@ -26,8 +29,24 @@ public class FishSpawner : MonoBehaviour
             Vector3 position = transform.TransformPoint(new float3(UnityEngine.Random.Range(-Border, Border), 0F, UnityEngine.Random.Range(-Border, Border)));
             entityManager.SetComponentData(instance, new Translation { Value = position });
 
+            quaternion rotVal = quaternion.AxisAngle(math.up(), UnityEngine.Random.Range(0F, 6F));
+            entityManager.SetComponentData(instance, new Rotation { Value = rotVal});
+
+            entityManager.AddComponentData(instance, new PhysicsVelocity());
+            entityManager.SetComponentData(instance, new PhysicsVelocity { Linear = math.mul(rotVal, math.left()) });
+
             entityManager.AddComponentData(instance, new Fish());
-            entityManager.SetComponentData(instance, new Fish { rotationSpeed = RotSpeed, rotationAngleMul = UnityEngine.Random.Range(-5f, 5F) });
+            entityManager.SetComponentData(instance, new Fish
+            {
+                id = x,
+                min_speed = minSpeed,
+                max_speed = maxSpeed,
+                max_accel = maxAccel,
+                //direction = ,
+                sep_rad = 1F,
+                sep_weight = 5f,
+
+            });
         }
     }
 }
