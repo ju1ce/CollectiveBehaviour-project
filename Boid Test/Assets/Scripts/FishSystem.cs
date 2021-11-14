@@ -18,7 +18,9 @@ public partial class FishSystem : SystemBase
         NativeArray<Translation> fishes = query.ToComponentDataArray<Translation>(alloc);
         NativeArray<PhysicsVelocity> fishVelocity = query.ToComponentDataArray<PhysicsVelocity>(alloc);
 
-        Entities.ForEach((ref Rotation rotation, ref PhysicsVelocity velocity,in Translation trans, in Fish fishy) =>
+        Entities.WithReadOnly(fishes).WithDisposeOnCompletion(fishes)
+            .WithReadOnly(fishVelocity).WithDisposeOnCompletion(fishVelocity)
+            .ForEach((ref Rotation rotation, ref PhysicsVelocity velocity,in Translation trans, in Fish fishy) =>
             {
                 float3 sep_drive = new float3(0f, 0f, 0f);
                 float3 ali_drive = new float3(0f, 0f, 0f);
@@ -83,9 +85,9 @@ public partial class FishSystem : SystemBase
                 rotation.Value = math.mul(rotation.Value, quaternion.Euler(0f, 1.57f, 0f));
 
 
-            }).Run();
+            }).ScheduleParallel();
 
-        fishes.Dispose();
-        fishVelocity.Dispose();
+        //fishes.Dispose();
+        //fishVelocity.Dispose();
     }
 }
