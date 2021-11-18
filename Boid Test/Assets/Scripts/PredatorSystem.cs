@@ -7,25 +7,21 @@ using Unity.Collections;
 using UnityEngine;
 
 [AlwaysSynchronizeSystem]
-public class PredatorSystem : JobComponentSystem
+public class PredatorSystem : SystemBase
 {
-    protected override JobHandle OnUpdate(JobHandle inputData)
+    protected override void OnUpdate()
     {
-        // Debug.Log("yes");
-        
         float deltaTime = Time.DeltaTime;
         
-        float2 dir = new float2(0, 1);
+        float2 dir = new float2(1, 0);
 
         Entities.ForEach((ref PhysicsVelocity velocity, in Predator predatorData) =>
             {
                 float2 newVel = velocity.Linear.xz;
-                newVel = dir * predatorData.Speed * deltaTime;
+                newVel += dir * predatorData.Speed * deltaTime;
 
                 velocity.Linear.xz = newVel;
             }
         ).Run();
-
-        return default;
     }
 }
