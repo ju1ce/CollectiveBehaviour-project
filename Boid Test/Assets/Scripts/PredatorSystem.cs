@@ -13,7 +13,7 @@ public class PredatorSystem : SystemBase
     {
         float deltaTime = Time.DeltaTime;
         
-        float2 dir = new float2(1, 0);
+        float2 dir = new float2(0, 1);
 
         Entities.ForEach((ref PhysicsVelocity velocity, in Predator predatorData) =>
             {

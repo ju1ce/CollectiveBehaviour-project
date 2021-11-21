@@ -8,27 +8,49 @@ using Unity.Collections;
 public partial class FishSystem : SystemBase
 {
     private EntityQuery query;
+    private EntityQuery predatorQuery;
     protected override void OnUpdate()
     {
         float deltaTime = Time.DeltaTime;
 
         query = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<PhysicsVelocity>());
+        predatorQuery = GetEntityQuery(typeof(Predator), ComponentType.ReadOnly<Translation>());
 
         Allocator alloc = Unity.Collections.Allocator.TempJob;
         NativeArray<Translation> fishes = query.ToComponentDataArray<Translation>(alloc);
         NativeArray<PhysicsVelocity> fishVelocity = query.ToComponentDataArray<PhysicsVelocity>(alloc);
+        NativeArray<Translation> predatorLocation = predatorQuery.ToComponentDataArray<Translation>(alloc);
 
-        Entities.WithReadOnly(fishes).WithDisposeOnCompletion(fishes)
+        Entities.WithBurst().WithReadOnly(fishes).WithDisposeOnCompletion(fishes)
             .WithReadOnly(fishVelocity).WithDisposeOnCompletion(fishVelocity)
+            .WithReadOnly(predatorLocation).WithDisposeOnCompletion(predatorLocation)
             .ForEach((ref Rotation rotation, ref PhysicsVelocity velocity,in Translation trans, in Fish fishy) =>
             {
                 float3 sep_drive = new float3(0f, 0f, 0f);
                 float3 ali_drive = new float3(0f, 0f, 0f);
                 float3 coh_drive = new float3(0f, 0f, 0f);
+                float3 esc_drive = new float3(0f, 0f, 0f);
 
                 int sep_count = 0;
                 int ali_count = 0;
                 int coh_count = 0;
+                int esc_count = 0;
+
+                for (int i = 0; i < predatorLocation.Length; i++)
+                {
+                    float3 dir = predatorLocation[i].Value - trans.Value;
+                    float dist = math.length(dir);
+                    dir = math.normalize(dir);
+
+                    float fov = math.dot(dir, math.normalize(velocity.Linear));
+                    if (fov < fishy.fov)
+                        continue;
+                    if (dist <= fishy.esc_rad)
+                    {
+                        esc_drive += -dir * (1 - (dist / fishy.esc_rad));
+                        esc_count++;
+                    }
+                }
 
                 for(int i=0; i<fishes.Length; i++)
                 {
@@ -64,8 +86,10 @@ public partial class FishSystem : SystemBase
 
                 coh_drive = coh_count == 0 ? coh_drive * 0f : coh_drive / coh_count;
 
+                esc_drive = esc_count == 0 ? esc_drive * 0f : esc_drive / esc_count;
+
                 //calculate drive
-                float3 drive = fishy.sep_weight * sep_drive + fishy.ali_weight * ali_drive + fishy.coh_weight * coh_drive;
+                float3 drive = fishy.sep_weight * sep_drive + fishy.ali_weight * ali_drive + fishy.coh_weight * coh_drive + esc_drive * fishy.esc_weight;
 
                 if(math.length(drive) > fishy.max_accel)
                 {

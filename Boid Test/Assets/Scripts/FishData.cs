@@ -22,6 +22,8 @@ public struct Fish : IComponentData
     public float coh_rad;
     public float coh_weight;
 
-
+    // escape
+    public float esc_rad;
+    public float esc_weight;
 
 }
