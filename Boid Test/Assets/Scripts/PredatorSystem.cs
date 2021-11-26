@@ -45,15 +45,15 @@ public class PredatorSystem : SystemBase
         _predators = _predatorQuery.ToComponentDataArray<Translation>(_alloc);
 
         float3 currentPosition = _predators[0].Value;
-        
-        Debug.Log(currentPosition);
+        float2 attackVector = AttackCenter(currentPosition);
 
         float deltaTime = Time.DeltaTime;
 
         Entities.ForEach((ref PhysicsVelocity velocity, in Predator predatorData) =>
             {
                 float2 newVel = velocity.Linear.xz;
-                newVel += AttackCenter(currentPosition) * predatorData.Speed * deltaTime;
+                
+                newVel += attackVector * predatorData.Speed * deltaTime;
 
                 velocity.Linear.xz = newVel;
             }
