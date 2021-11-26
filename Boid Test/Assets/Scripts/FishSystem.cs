@@ -16,7 +16,7 @@ public partial class FishSystem : SystemBase
         query = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<PhysicsVelocity>());
         predatorQuery = GetEntityQuery(typeof(Predator), ComponentType.ReadOnly<Translation>());
 
-        Allocator alloc = Unity.Collections.Allocator.TempJob;
+        Allocator alloc = Allocator.TempJob;
         NativeArray<Translation> fishes = query.ToComponentDataArray<Translation>(alloc);
         NativeArray<PhysicsVelocity> fishVelocity = query.ToComponentDataArray<PhysicsVelocity>(alloc);
         NativeArray<Translation> predatorLocation = predatorQuery.ToComponentDataArray<Translation>(alloc);
