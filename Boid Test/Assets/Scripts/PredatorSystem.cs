@@ -12,23 +12,21 @@ public class PredatorSystem : SystemBase
     private Allocator _alloc;
     private EntityQuery _fishQuery;
     private EntityQuery _predatorQuery;
-    private NativeArray<Translation> _predators;
-    private NativeArray<Translation> _fishes;
+    [DeallocateOnJobCompletion] private NativeArray<Translation> _predators;
+    [DeallocateOnJobCompletion] private NativeArray<Translation> _fishes;
 
-    private float2 AttackCenter(float3 position)
+    private float3 AttackCenter(float3 position)
     {
-        float2 goal = new float2(0, 0);
+        float3 goal = new float3(0, 0, 0);
         
         foreach (var fish in _fishes)
         {
-            goal.x = fish.Value.x;
-            goal.y = fish.Value.z;
+            goal += fish.Value;
         }
 
-        goal.x /= _fishes.Length;
-        goal.y /= _fishes.Length;
-
-        return goal - new float2(position.x, position.z);
+        goal /= _fishes.Length;
+        
+        return math.normalize(goal - position);
     }
 
     protected override void OnStartRunning()
@@ -45,18 +43,22 @@ public class PredatorSystem : SystemBase
         _predators = _predatorQuery.ToComponentDataArray<Translation>(_alloc);
 
         float3 currentPosition = _predators[0].Value;
-        float2 attackVector = AttackCenter(currentPosition);
+        float3 attackVector = AttackCenter(currentPosition);
+        
+        // Debug.Log($"Position {currentPosition}");
 
         float deltaTime = Time.DeltaTime;
 
-        Entities.ForEach((ref PhysicsVelocity velocity, in Predator predatorData) =>
+        Entities.ForEach((ref Translation translation, in Predator predatorData) =>
             {
-                float2 newVel = velocity.Linear.xz;
-                
-                newVel += attackVector * predatorData.Speed * deltaTime;
-
-                velocity.Linear.xz = newVel;
+                translation.Value += attackVector * predatorData.Speed * deltaTime;
             }
         ).Run();
+    }
+
+    protected override void OnDestroy()
+    {
+        _fishes.Dispose();
+        _predators.Dispose();
     }
 }
