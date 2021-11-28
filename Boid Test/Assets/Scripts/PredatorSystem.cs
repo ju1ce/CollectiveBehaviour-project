@@ -15,6 +15,11 @@ public class PredatorSystem : SystemBase
     [DeallocateOnJobCompletion] private NativeArray<Translation> _predators;
     [DeallocateOnJobCompletion] private NativeArray<Translation> _fishes;
 
+    private float3 AttackIsolated(float3 position)
+    {
+        return default;
+    }
+    
     private float3 AttackCenter(float3 position)
     {
         float3 goal = new float3(0, 0, 0);
