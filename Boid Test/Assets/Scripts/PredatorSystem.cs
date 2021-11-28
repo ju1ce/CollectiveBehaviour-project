@@ -29,6 +29,25 @@ public class PredatorSystem : SystemBase
         return math.normalize(goal - position);
     }
 
+    private float3 AttackClosest(float3 position)
+    {
+        float3 goal = default;
+        float distance = float.MaxValue;
+        
+        foreach (var fish in _fishes)
+        {
+            float currentDist = math.distance(fish.Value, position);
+
+            if (currentDist < distance)
+            {
+                distance = currentDist;
+                goal = fish.Value;
+            }
+        }
+        
+        return math.normalize(goal - position);
+    }
+
     protected override void OnStartRunning()
     {
         _alloc = Allocator.TempJob;
@@ -43,7 +62,8 @@ public class PredatorSystem : SystemBase
         _predators = _predatorQuery.ToComponentDataArray<Translation>(_alloc);
 
         float3 currentPosition = _predators[0].Value;
-        float3 attackVector = AttackCenter(currentPosition);
+        // float3 attackVector = AttackCenter(currentPosition);
+        float3 attackVector = AttackClosest(currentPosition);
         
         // Debug.Log($"Position {currentPosition}");
 
