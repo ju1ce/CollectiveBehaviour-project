@@ -17,7 +17,35 @@ public class PredatorSystem : SystemBase
 
     private float3 AttackIsolated(float3 position)
     {
-        return default;
+
+        float3 goal = default;
+        float angularDist = float.MinValue;
+
+        foreach (var f1 in _fishes)
+        {
+            float3 nn = default;
+            float nn_dist = float.MaxValue;
+            
+            foreach (var f2 in _fishes)
+            {
+                float dist = math.distance(f1.Value, f2.Value);
+                if (dist > 0 && dist < nn_dist)
+                {
+                    nn = f2.Value;
+                    nn_dist = dist;
+                }
+            }
+
+            float angle = math.acos(math.dot(math.normalize(f1.Value), math.normalize(nn)));
+
+            if (angle > angularDist)
+            {
+                goal = f1.Value;
+                angularDist = angle;
+            }
+        }
+        
+        return math.normalize(goal - position);
     }
     
     private float3 AttackCenter(float3 position)
@@ -68,7 +96,8 @@ public class PredatorSystem : SystemBase
 
         float3 currentPosition = _predators[0].Value;
         // float3 attackVector = AttackCenter(currentPosition);
-        float3 attackVector = AttackClosest(currentPosition);
+        // float3 attackVector = AttackClosest(currentPosition);
+        float3 attackVector = AttackIsolated(currentPosition);
         
         // Debug.Log($"Position {currentPosition}");
 
