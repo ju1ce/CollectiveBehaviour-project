@@ -66,8 +66,9 @@ public class FishSpawner : MonoBehaviour
             entityManager.AddComponentData(instance, new Fish());
             entityManager.SetComponentData(instance, new Fish
             {
+                dead = false,
                 id = x,
-                fov = math.cos((FOV/2)* 0.0174533f),
+                fov = math.cos((FOV / 2) * 0.0174533f),
                 min_speed = minSpeed,
                 max_speed = maxSpeed,
                 max_accel = maxAccel,
@@ -79,7 +80,7 @@ public class FishSpawner : MonoBehaviour
                 coh_weight = cohWeight,
                 esc_rad = escRadius,
                 esc_weight = escWeight
-            });
+            }) ;
         }
     }
 }

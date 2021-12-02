@@ -3,6 +3,8 @@ using Unity.Entities;
 [GenerateAuthoringComponent]
 public struct Fish : IComponentData
 {
+    public bool dead; 
+
     public int id;
     public float fov;
     //public float direction;

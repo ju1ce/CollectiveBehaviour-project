@@ -9,14 +9,17 @@ public partial class FishSystem : SystemBase
 {
     private EntityQuery query;
     private EntityQuery predatorQuery;
+
     protected override void OnUpdate()
     {
         float deltaTime = Time.DeltaTime;
 
+        Allocator alloc = Allocator.TempJob;
+
         query = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<PhysicsVelocity>());
+
         predatorQuery = GetEntityQuery(typeof(Predator), ComponentType.ReadOnly<Translation>());
 
-        Allocator alloc = Allocator.TempJob;
         NativeArray<Translation> fishes = query.ToComponentDataArray<Translation>(alloc);
         NativeArray<PhysicsVelocity> fishVelocity = query.ToComponentDataArray<PhysicsVelocity>(alloc);
         NativeArray<Translation> predatorLocation = predatorQuery.ToComponentDataArray<Translation>(alloc);
@@ -24,7 +27,7 @@ public partial class FishSystem : SystemBase
         Entities.WithBurst().WithReadOnly(fishes).WithDisposeOnCompletion(fishes)
             .WithReadOnly(fishVelocity).WithDisposeOnCompletion(fishVelocity)
             .WithReadOnly(predatorLocation).WithDisposeOnCompletion(predatorLocation)
-            .ForEach((ref Rotation rotation, ref PhysicsVelocity velocity,in Translation trans, in Fish fishy) =>
+            .ForEach((Entity entity, ref Rotation rotation, ref PhysicsVelocity velocity, ref Fish fishy, in Translation trans) =>
             {
                 float3 sep_drive = new float3(0f, 0f, 0f);
                 float3 ali_drive = new float3(0f, 0f, 0f);
@@ -42,6 +45,11 @@ public partial class FishSystem : SystemBase
                     float dist = math.length(dir);
                     dir = math.normalize(dir);
 
+                    if (dist < 1f)
+                    {
+                        fishy.dead = true;
+                    }       
+
                     float fov = math.dot(dir, math.normalize(velocity.Linear));
                     if (fov < fishy.fov)
                         continue;
@@ -54,13 +62,14 @@ public partial class FishSystem : SystemBase
 
                 for(int i=0; i<fishes.Length; i++)
                 {
+
                     float3 dir = fishes[i].Value - trans.Value;
                     float dist = math.length(dir);
                     dir = math.normalize(dir);
 
                     float fov = math.dot(dir, math.normalize(velocity.Linear));
 
-                    if(i == fishy.id || fov < fishy.fov)
+                    if(dist == 0 || fov < fishy.fov)
                     {
                         continue;
                     }
@@ -111,7 +120,5 @@ public partial class FishSystem : SystemBase
 
             }).ScheduleParallel();
 
-        //fishes.Dispose();
-        //fishVelocity.Dispose();
     }
 }

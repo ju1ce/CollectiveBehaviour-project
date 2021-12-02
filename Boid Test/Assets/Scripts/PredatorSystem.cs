@@ -95,9 +95,9 @@ public class PredatorSystem : SystemBase
         _predators = _predatorQuery.ToComponentDataArray<Translation>(_alloc);
 
         float3 currentPosition = _predators[0].Value;
-        // float3 attackVector = AttackCenter(currentPosition);
-        // float3 attackVector = AttackClosest(currentPosition);
-        float3 attackVector = AttackIsolated(currentPosition);
+        //float3 attackVector = AttackCenter(currentPosition);
+        float3 attackVector = AttackClosest(currentPosition);
+        //float3 attackVector = AttackIsolated(currentPosition);
         
         // Debug.Log($"Position {currentPosition}");
 
@@ -108,11 +108,13 @@ public class PredatorSystem : SystemBase
                 translation.Value += attackVector * predatorData.Speed * deltaTime;
             }
         ).Run();
+        _fishes.Dispose();
+        _predators.Dispose();
     }
 
     protected override void OnDestroy()
     {
-        _fishes.Dispose();
-        _predators.Dispose();
+        //_fishes.Dispose();
+        //_predators.Dispose();
     }
 }
