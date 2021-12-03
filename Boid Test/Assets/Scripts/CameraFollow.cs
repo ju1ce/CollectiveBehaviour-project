@@ -33,6 +33,7 @@ public class CameraFollow : MonoBehaviour
             return;
         }
         Translation predatorPos = manager.GetComponentData<Translation>(predator);
-        transform.position = predatorPos.Value + offset;
+        float3 newPos = predatorPos.Value + offset;
+        transform.position = 0.95f * transform.position + 0.05f * new Vector3(newPos.x,newPos.y,newPos.z);// + new Vector3(offset.x,offset.y,offset.z);
     }
 }
