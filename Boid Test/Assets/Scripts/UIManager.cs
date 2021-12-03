@@ -27,6 +27,7 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //Time.timeScale = 10f;
         instance = this;
         count = 0;
         DisplayCount();

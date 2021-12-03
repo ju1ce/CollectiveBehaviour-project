@@ -47,7 +47,7 @@ public partial class FishSystem : SystemBase
 
                     if (dist < 1f)
                     {
-                        fishy.dead = true;
+                        //fishy.dead = true;
                     }       
 
                     float fov = math.dot(dir, math.normalize(velocity.Linear));
