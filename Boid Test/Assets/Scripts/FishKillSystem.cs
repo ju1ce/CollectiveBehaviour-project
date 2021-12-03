@@ -17,10 +17,11 @@ public partial class FishKillSystem : SystemBase
 
         EntityCommandBuffer entityCommandBuffer = new EntityCommandBuffer(alloc);
 
-        Entities.ForEach((Entity entity, ref Fish fishy, ref Rotation rotation, ref PhysicsVelocity velocity) =>
+        Entities.WithoutBurst().ForEach((Entity entity, ref Fish fishy, ref Rotation rotation, ref PhysicsVelocity velocity) =>
         {
             if (fishy.dead)
             {
+                UIManager.instance.IncreaseCount();
                 entityCommandBuffer.RemoveComponent<Fish>(entity);
                 rotation.Value = math.mul(rotation.Value, quaternion.Euler(1.57f, 0f, 0f));
                 velocity.Linear = 0f;

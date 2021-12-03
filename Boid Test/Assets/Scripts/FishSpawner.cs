@@ -55,7 +55,7 @@ public class FishSpawner : MonoBehaviour
             Vector3 position = transform.TransformPoint(new float3(UnityEngine.Random.Range(-Border, Border), 0F, UnityEngine.Random.Range(-Border, Border)));
             entityManager.SetComponentData(instance, new Translation { Value = position });
 
-            quaternion rotVal = quaternion.AxisAngle(math.up(), UnityEngine.Random.Range(-3.12F, -3.14F));
+            quaternion rotVal = quaternion.AxisAngle(math.up(), UnityEngine.Random.Range(-3.14F, 3.14F));
             entityManager.SetComponentData(instance, new Rotation { Value = rotVal});
 
             entityManager.AddComponentData(instance, new PhysicsVelocity());
