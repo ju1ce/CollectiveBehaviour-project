@@ -88,7 +88,7 @@ public class PredatorSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        _fishQuery = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<PhysicsVelocity>());
+        _fishQuery = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Movement>());
         _predatorQuery = GetEntityQuery(typeof(Predator), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<PhysicsVelocity>());
         
         _fishes = _fishQuery.ToComponentDataArray<Translation>(_alloc);

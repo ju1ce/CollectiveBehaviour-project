@@ -5,6 +5,9 @@ using Unity.Transforms;
 using Unity.Physics;
 using Unity.Collections;
 
+using UnityEngine;
+
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class FishSystem : SystemBase
 {
     private EntityQuery query;
@@ -12,22 +15,23 @@ public partial class FishSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        float deltaTime = Time.DeltaTime;
+        float deltaTime = 1f;
+        //Debug.Log("deltatime: " + deltaTime);
 
         Allocator alloc = Allocator.TempJob;
 
-        query = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<PhysicsVelocity>());
+        query = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Movement>());
 
         predatorQuery = GetEntityQuery(typeof(Predator), ComponentType.ReadOnly<Translation>());
 
         NativeArray<Translation> fishes = query.ToComponentDataArray<Translation>(alloc);
-        NativeArray<PhysicsVelocity> fishVelocity = query.ToComponentDataArray<PhysicsVelocity>(alloc);
+        NativeArray<Movement> fishVelocity = query.ToComponentDataArray<Movement>(alloc);
         NativeArray<Translation> predatorLocation = predatorQuery.ToComponentDataArray<Translation>(alloc);
 
         Entities.WithBurst().WithReadOnly(fishes).WithDisposeOnCompletion(fishes)
             .WithReadOnly(fishVelocity).WithDisposeOnCompletion(fishVelocity)
             .WithReadOnly(predatorLocation).WithDisposeOnCompletion(predatorLocation)
-            .ForEach((Entity entity, ref Rotation rotation, ref PhysicsVelocity velocity, ref Fish fishy, in Translation trans) =>
+            .ForEach((Entity entity, ref Rotation rotation, ref Movement velocity, ref Fish fishy, in Translation trans) =>
             {
                 float3 sep_drive = new float3(0f, 0f, 0f);
                 float3 ali_drive = new float3(0f, 0f, 0f);

@@ -58,8 +58,8 @@ public class FishSpawner : MonoBehaviour
             quaternion rotVal = quaternion.AxisAngle(math.up(), UnityEngine.Random.Range(-3.14F, 3.14F));
             entityManager.SetComponentData(instance, new Rotation { Value = rotVal});
 
-            entityManager.AddComponentData(instance, new PhysicsVelocity());
-            entityManager.SetComponentData(instance, new PhysicsVelocity { Linear = math.mul(rotVal, math.left()) });
+            entityManager.AddComponentData(instance, new Movement());
+            entityManager.SetComponentData(instance, new Movement { Linear = math.mul(rotVal, math.left()) });
 
             //Debug.Log(math.cos((FOV / 2) * 0.0174533f));
 
