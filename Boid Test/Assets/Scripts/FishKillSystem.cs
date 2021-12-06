@@ -17,7 +17,7 @@ public partial class FishKillSystem : SystemBase
 
         EntityCommandBuffer entityCommandBuffer = new EntityCommandBuffer(alloc);
 
-        Entities.WithoutBurst().ForEach((Entity entity, ref Fish fishy, ref Rotation rotation, ref PhysicsVelocity velocity) =>
+        Entities.WithoutBurst().ForEach((Entity entity, ref Fish fishy, ref Rotation rotation, ref Movement velocity) =>
         {
             if (fishy.dead)
             {
