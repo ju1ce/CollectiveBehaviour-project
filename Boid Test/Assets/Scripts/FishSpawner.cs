@@ -1,3 +1,4 @@
+// deprecated
 using System.Collections;
 using Unity.Entities;
 using Unity.Mathematics;

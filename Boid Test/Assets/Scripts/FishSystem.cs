@@ -2,10 +2,8 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Unity.Physics;
 using Unity.Collections;
 
-using UnityEngine;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class FishSystem : SystemBase
@@ -16,7 +14,6 @@ public partial class FishSystem : SystemBase
     protected override void OnUpdate()
     {
         float deltaTime = 1f;
-        //Debug.Log("deltatime: " + deltaTime);
 
         Allocator alloc = Allocator.TempJob;
 

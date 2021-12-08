@@ -5,6 +5,7 @@ using Unity.Transforms;
 using Unity.Physics;
 using Unity.Collections;
 
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 [UpdateBefore(typeof(FishSystem))]
 public partial class FishKillSystem : SystemBase
 {
