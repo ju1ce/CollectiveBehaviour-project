@@ -15,9 +15,10 @@ public class PredatorSystem : SystemBase
     [DeallocateOnJobCompletion] private NativeArray<Translation> _predators;
     [DeallocateOnJobCompletion] private NativeArray<Translation> _fishes;
 
+    private float3 _attackVector;
+
     private float3 AttackIsolated(float3 position)
     {
-
         float3 goal = default;
         float angularDist = float.MinValue;
 
@@ -50,14 +51,28 @@ public class PredatorSystem : SystemBase
     
     private float3 AttackCenter(float3 position)
     {
-        float3 goal = new float3(0, 0, 0);
+        float3 center = new float3(0, 0, 0);
         
         foreach (var fish in _fishes)
         {
-            goal += fish.Value;
+            center += fish.Value;
         }
 
-        goal /= _fishes.Length;
+        center /= _fishes.Length;
+
+        float3 goal = default;
+        float distance = float.MaxValue;
+        
+        foreach (var fish in _fishes)
+        {
+            float dist = math.distance(fish.Value, center);
+
+            if (dist < distance)
+            {
+                distance = dist;
+                goal = fish.Value;
+            }
+        }
         
         return math.normalize(goal - position);
     }
@@ -84,37 +99,33 @@ public class PredatorSystem : SystemBase
     protected override void OnStartRunning()
     {
         _alloc = Allocator.TempJob;
-    }
-
-    protected override void OnUpdate()
-    {
-        _fishQuery = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Movement>());
+        _fishQuery = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<PhysicsVelocity>());
         _predatorQuery = GetEntityQuery(typeof(Predator), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<PhysicsVelocity>());
         
         _fishes = _fishQuery.ToComponentDataArray<Translation>(_alloc);
         _predators = _predatorQuery.ToComponentDataArray<Translation>(_alloc);
 
         float3 currentPosition = _predators[0].Value;
-        //float3 attackVector = AttackCenter(currentPosition);
-        float3 attackVector = AttackClosest(currentPosition);
-        //float3 attackVector = AttackIsolated(currentPosition);
-        
-        // Debug.Log($"Position {currentPosition}");
+        _attackVector = AttackCenter(currentPosition);
+        // _attackVector = AttackClosest(currentPosition);
+        // _attackVector = AttackIsolated(currentPosition);
+    }
 
+    protected override void OnUpdate()
+    {
         float deltaTime = Time.DeltaTime;
+        float3 attackVector = _attackVector;
 
         Entities.ForEach((ref Translation translation, in Predator predatorData) =>
             {
                 translation.Value += attackVector * predatorData.Speed * deltaTime;
             }
         ).Run();
-        _fishes.Dispose();
-        _predators.Dispose();
     }
 
     protected override void OnDestroy()
     {
-        //_fishes.Dispose();
-        //_predators.Dispose();
+        _fishes.Dispose();
+        _predators.Dispose();
     }
 }
