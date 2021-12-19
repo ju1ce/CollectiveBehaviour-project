@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 7656306948700646789}
   - component: {fileID: 7656306948700646815}
   - component: {fileID: 7656306948700646813}
+  - component: {fileID: 5166481037771353025}
   m_Layer: 0
   m_Name: SharkV1
   m_TagString: Untagged
@@ -318,3 +319,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ConversionMode: 0
+--- !u!114 &5166481037771353025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7656306948700646802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc283d210e31aa24298236db35e02c73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Linear:
+    x: 0
+    y: 0
+    z: 0

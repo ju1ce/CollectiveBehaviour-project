@@ -113,6 +113,7 @@ public class PredatorSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        /*
         float deltaTime = Time.DeltaTime;
         float3 attackVector = _attackVector;
 
@@ -121,6 +122,14 @@ public class PredatorSystem : SystemBase
                 translation.Value += attackVector * predatorData.Speed * deltaTime;
             }
         ).Run();
+        */
+
+        float3 vec = _attackVector;
+        
+        Entities.WithBurst().ForEach((ref Movement velocity, in Translation trans) =>
+        {
+            velocity.Linear += vec;
+        }).ScheduleParallel();
     }
 
     protected override void OnDestroy()
