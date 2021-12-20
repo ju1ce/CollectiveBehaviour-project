@@ -7,6 +7,7 @@ using Unity.Collections;
 using UnityEngine;
 
 [AlwaysSynchronizeSystem]
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class PredatorSystem : SystemBase
 {
     private Allocator _alloc;
@@ -113,23 +114,28 @@ public class PredatorSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        /*
-        float deltaTime = Time.DeltaTime;
-        float3 attackVector = _attackVector;
-
-        Entities.ForEach((ref Translation translation, in Predator predatorData) =>
-            {
-                translation.Value += attackVector * predatorData.Speed * deltaTime;
-            }
-        ).Run();
-        */
-
-        float3 vec = _attackVector;
+        float deltaTime = 1f;
+        float3 drive = _attackVector;
         
-        Entities.WithBurst().ForEach((ref Movement velocity, in Translation trans) =>
+        Entities.WithBurst().ForEach((ref Movement velocity, ref Predator predator, in Translation trans) =>
         {
-            velocity.Linear += vec;
-        }).ScheduleParallel();
+            if(math.length(drive) > predator.MaxAcceleration)
+            {
+                drive = math.normalize(drive) * predator.MaxAcceleration;
+            }
+            
+            velocity.Linear += drive * deltaTime;
+
+            if(math.length(velocity.Linear) > predator.MaxSpeed)
+            {
+                velocity.Linear = math.normalize(velocity.Linear) * predator.MaxSpeed;
+            }
+            
+            if (math.length(velocity.Linear) < predator.MinSpeed)
+            {
+                velocity.Linear = math.normalize(velocity.Linear) * predator.MinSpeed;
+            }
+        }).Run();
     }
 
     protected override void OnDestroy()

@@ -5,6 +5,5 @@ using Unity.Mathematics;
 public struct Movement : IComponentData
 {
     public float3 Linear;
-
 }
 
