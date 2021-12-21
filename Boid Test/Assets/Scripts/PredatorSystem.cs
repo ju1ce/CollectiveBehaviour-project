@@ -14,6 +14,7 @@ public class PredatorSystem : SystemBase
     private EntityQuery _fishQuery;
     private EntityQuery _predatorQuery;
     [DeallocateOnJobCompletion] private NativeArray<Translation> _predators;
+    [DeallocateOnJobCompletion] private NativeArray<Predator> _predatorData;
     [DeallocateOnJobCompletion] private NativeArray<Translation> _fishes;
 
     private float3 _attackVector;
@@ -105,23 +106,42 @@ public class PredatorSystem : SystemBase
         
         _fishes = _fishQuery.ToComponentDataArray<Translation>(_alloc);
         _predators = _predatorQuery.ToComponentDataArray<Translation>(_alloc);
+        _predatorData = _predatorQuery.ToComponentDataArray<Predator>(_alloc);
 
         float3 currentPosition = _predators[0].Value;
         _attackVector = AttackCenter(currentPosition);
         // _attackVector = AttackClosest(currentPosition);
         // _attackVector = AttackIsolated(currentPosition);
     }
+    
+    private bool IsFishInHuntingRadius()
+    {
+        float3 currentPosition = _predators[0].Value;
+
+        foreach (var fish in _fishes)
+        {
+            if (math.distance(fish.Value, currentPosition) < _predatorData[0].HuntingRadius)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     protected override void OnUpdate()
     {
         float deltaTime = 1f;
         float3 drive = _attackVector;
+        float acceleration = IsFishInHuntingRadius()
+            ? _predatorData[0].HuntingAcceleration
+            : _predatorData[0].MaxAcceleration;
         
         Entities.WithBurst().ForEach((ref Movement velocity, ref Predator predator, in Translation trans) =>
         {
-            if(math.length(drive) > predator.MaxAcceleration)
+            if(math.length(drive) > acceleration)
             {
-                drive = math.normalize(drive) * predator.MaxAcceleration;
+                drive = math.normalize(drive) * acceleration;
             }
             
             velocity.Linear += drive * deltaTime;
@@ -142,5 +162,6 @@ public class PredatorSystem : SystemBase
     {
         _fishes.Dispose();
         _predators.Dispose();
+        _predatorData.Dispose();
     }
 }

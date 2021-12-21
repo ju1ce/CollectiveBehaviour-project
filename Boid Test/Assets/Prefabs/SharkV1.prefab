@@ -101,7 +101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxAcceleration: 2
   MaxSpeed: 6
-  MinSpeed: 4
+  MinSpeed: 3
   HuntingAcceleration: 2.5
   HuntingRadius: 400
 --- !u!65 &7656306948700646814
