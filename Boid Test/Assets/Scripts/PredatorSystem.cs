@@ -6,6 +6,7 @@ using Unity.Physics;
 using Unity.Collections;
 using UnityEngine;
 
+
 [AlwaysSynchronizeSystem]
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class PredatorSystem : SystemBase
@@ -100,6 +101,8 @@ public class PredatorSystem : SystemBase
 
     protected override void OnStartRunning()
     {
+        //veèina te funkcije se ne rab veè pomoje, ker je v onupdate prestavljen
+
         _alloc = Allocator.TempJob;
         _fishQuery = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<PhysicsVelocity>());
         _predatorQuery = GetEntityQuery(typeof(Predator), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<PhysicsVelocity>());
@@ -112,6 +115,10 @@ public class PredatorSystem : SystemBase
         _attackVector = AttackCenter(currentPosition);
         // _attackVector = AttackClosest(currentPosition);
         // _attackVector = AttackIsolated(currentPosition);
+
+        _fishes.Dispose();
+        _predators.Dispose();
+        _predatorData.Dispose();
     }
     
     private bool IsFishInHuntingRadius()
@@ -131,15 +138,31 @@ public class PredatorSystem : SystemBase
 
     protected override void OnUpdate()
     {
+
+        //dodani usi queriji
+        _alloc = Allocator.TempJob;
+        _fishQuery = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Movement>());
+        _predatorQuery = GetEntityQuery(typeof(Predator), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Movement>());
+
+        _fishes = _fishQuery.ToComponentDataArray<Translation>(_alloc);
+        _predators = _predatorQuery.ToComponentDataArray<Translation>(_alloc);
+        _predatorData = _predatorQuery.ToComponentDataArray<Predator>(_alloc);
+
         float deltaTime = 1f;
         float3 drive = _attackVector;
         float acceleration = IsFishInHuntingRadius()
             ? _predatorData[0].HuntingAcceleration
             : _predatorData[0].MaxAcceleration;
         
-        Entities.WithBurst().ForEach((ref Movement velocity, ref Predator predator, in Translation trans) =>
+        //Ker klièem AttackClosest znotrej tega, je treba dat withoutburst
+        Entities.WithoutBurst().ForEach((ref Movement velocity, ref Predator predator,ref Rotation rotation, in Translation trans) =>
         {
-            if(math.length(drive) > acceleration)
+            //raèunanje driva usak frame za usak predator
+            drive = AttackClosest(trans.Value);
+
+            //Debug.Log("speed: " + drive);
+
+            if (math.length(drive) > acceleration)
             {
                 drive = math.normalize(drive) * acceleration;
             }
@@ -155,13 +178,23 @@ public class PredatorSystem : SystemBase
             {
                 velocity.Linear = math.normalize(velocity.Linear) * predator.MinSpeed;
             }
+
+            //kopirana koda iz fishsystem da se predator obraèa
+            rotation.Value = quaternion.LookRotation(velocity.Linear, math.up());
+            rotation.Value = math.mul(rotation.Value, quaternion.Euler(0f, 1.57f, 0f));
+
         }).Run();
+
+        //disposi da ni memory leaka
+        _fishes.Dispose();
+        _predators.Dispose();
+        _predatorData.Dispose();
     }
 
     protected override void OnDestroy()
     {
-        _fishes.Dispose();
-        _predators.Dispose();
-        _predatorData.Dispose();
+       // _fishes.Dispose();
+        //_predators.Dispose();
+        //_predatorData.Dispose();
     }
 }

@@ -635,7 +635,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   offset:
     x: 0
-    y: 100
+    y: 200
     z: 0
 --- !u!1 &1697405643 stripped
 GameObject:
@@ -845,7 +845,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7656306948700646810, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 15.8
       objectReference: {fileID: 0}
     - target: {fileID: 7656306948700646810, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
       propertyPath: m_LocalPosition.y
