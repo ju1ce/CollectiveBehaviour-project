@@ -11,8 +11,15 @@ public partial class FishSystem : SystemBase
     private EntityQuery query;
     private EntityQuery predatorQuery;
 
+    private bool disabled = false;
+
     protected override void OnUpdate()
     {
+        if(disabled)
+        {
+            return;
+        }
+
         float deltaTime = 1f;
 
         Allocator alloc = Allocator.TempJob;

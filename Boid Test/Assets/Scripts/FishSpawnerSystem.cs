@@ -41,7 +41,7 @@ public partial class FishSpawnerSystem : SystemBase
 
                         commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation { Value = position });
 
-                        quaternion rotVal = quaternion.AxisAngle(math.up(), rnd.NextFloat(1.50f, 1.64f));
+                        quaternion rotVal = quaternion.AxisAngle(math.up(), rnd.NextFloat(1.40f, 1.74f));
                         commandBuffer.SetComponent(entityInQueryIndex, instance, new Rotation { Value = rotVal });
 
                         //commandBuffer.AddComponent(entityInQueryIndex, instance, new Movement());
