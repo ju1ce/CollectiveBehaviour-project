@@ -206,7 +206,7 @@ public class PredatorSystem : SystemBase
                     }
                 }
                 
-                double probsOfKill = 1/confusabilityCount;
+                double probsOfKill = confusabilityCount > 0 ? 1/confusabilityCount : 1.0;
                 
                 float rand = Random.value;
                 
