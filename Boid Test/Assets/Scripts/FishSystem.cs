@@ -122,11 +122,10 @@ public partial class FishSystem : SystemBase
                 {
                     velocity.Linear = math.normalize(velocity.Linear) * fishy.min_speed;
                 }
+                
                 rotation.Value = quaternion.LookRotation(velocity.Linear, math.up());
                 rotation.Value = math.mul(rotation.Value, quaternion.Euler(0f, 1.57f, 0f));
 
-
             }).ScheduleParallel();
-
     }
 }

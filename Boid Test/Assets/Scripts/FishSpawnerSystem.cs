@@ -51,7 +51,7 @@ public partial class FishSpawnerSystem : SystemBase
                         commandBuffer.SetComponent(entityInQueryIndex, instance, new Fish
                         {
                             dead = false,
-                            id = x,
+                            id = x * fishSpawnerData.Count + y,
                             fov = fishSpawnerData.FOV,
                             min_speed = fishSpawnerData.minSpeed,
                             max_speed = fishSpawnerData.maxSpeed,

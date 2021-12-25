@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -5,54 +6,79 @@ using Unity.Transforms;
 using Unity.Physics;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
+public struct FishPositionAndId
+{
+    public FishPositionAndId(float3 position, int id)
+    {
+        Position = position;
+        Id = id;
+    }
+    
+    public float3 Position { get; }
+    public int Id { get; }
+    
+}
 
 [AlwaysSynchronizeSystem]
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class PredatorSystem : SystemBase
 {
+    private float _timer;
+    private bool _activeTimer;
+    private bool _isHunting;
+    private ArrayList _deadFishIds;
     private Allocator _alloc;
     private EntityQuery _fishQuery;
     private EntityQuery _predatorQuery;
     [DeallocateOnJobCompletion] private NativeArray<Translation> _predators;
     [DeallocateOnJobCompletion] private NativeArray<Predator> _predatorData;
     [DeallocateOnJobCompletion] private NativeArray<Translation> _fishes;
-
-    private float3 _attackVector;
-
-    private float3 AttackIsolated(float3 position)
+    [DeallocateOnJobCompletion] private NativeArray<Entity> _fishesEntities;
+    [DeallocateOnJobCompletion] private NativeArray<Fish> _fishData;
+    
+    private FishPositionAndId AttackIsolated(float3 position)
     {
-        float3 goal = default;
+        FishPositionAndId goal = default;
         float angularDist = float.MinValue;
 
-        foreach (var f1 in _fishes)
+        foreach (var f1 in _fishesEntities)
         {
-            float3 nn = default;
+            FishPositionAndId nn = default;
             float nn_dist = float.MaxValue;
             
-            foreach (var f2 in _fishes)
+            Translation translation1 = EntityManager.GetComponentData<Translation>(f1);
+            Fish fishData1 = EntityManager.GetComponentData<Fish>(f1);
+            
+            foreach (var f2 in _fishesEntities)
             {
-                float dist = math.distance(f1.Value, f2.Value);
+                
+                Translation translation2 = EntityManager.GetComponentData<Translation>(f2);
+                Fish fishData2 = EntityManager.GetComponentData<Fish>(f2);
+                
+                float dist = math.distance(translation1.Value, translation2.Value);
                 if (dist > 0 && dist < nn_dist)
                 {
-                    nn = f2.Value;
+                    nn = new FishPositionAndId(translation2.Value, fishData2.id); // f2.Value;
                     nn_dist = dist;
                 }
             }
 
-            float angle = math.acos(math.dot(math.normalize(f1.Value), math.normalize(nn)));
+            float angle = math.acos(math.dot(math.normalize(translation1.Value), math.normalize(nn.Position)));
 
             if (angle > angularDist)
             {
-                goal = f1.Value;
+                goal = new FishPositionAndId(translation1.Value, fishData1.id);
                 angularDist = angle;
             }
         }
-        
-        return math.normalize(goal - position);
+
+        return goal;
     }
     
-    private float3 AttackCenter(float3 position)
+    private FishPositionAndId AttackCenter(float3 position)
     {
         float3 center = new float3(0, 0, 0);
         
@@ -63,62 +89,53 @@ public class PredatorSystem : SystemBase
 
         center /= _fishes.Length;
 
-        float3 goal = default;
+        FishPositionAndId goal = default;
         float distance = float.MaxValue;
         
-        foreach (var fish in _fishes)
+        foreach (var fish in _fishesEntities)
         {
-            float dist = math.distance(fish.Value, center);
+            Translation translation = EntityManager.GetComponentData<Translation>(fish);
+            Fish fishData = EntityManager.GetComponentData<Fish>(fish);
+            
+            float dist = math.distance(translation.Value, center);
 
             if (dist < distance)
             {
                 distance = dist;
-                goal = fish.Value;
+                goal = new FishPositionAndId(translation.Value, fishData.id);
             }
         }
-        
-        return math.normalize(goal - position);
+
+        return goal;
     }
 
-    private float3 AttackClosest(float3 position)
+    private FishPositionAndId AttackClosest(float3 position)
     {
-        float3 goal = default;
+        FishPositionAndId goal = default;
         float distance = float.MaxValue;
         
-        foreach (var fish in _fishes)
+        foreach (var fish in _fishesEntities)
         {
-            float currentDist = math.distance(fish.Value, position);
+            Translation translation = EntityManager.GetComponentData<Translation>(fish);
+            Fish fishData = EntityManager.GetComponentData<Fish>(fish);
+
+            float currentDist = math.distance(translation.Value, position);
 
             if (currentDist < distance)
             {
                 distance = currentDist;
-                goal = fish.Value;
+                goal = new FishPositionAndId(translation.Value, fishData.id);
             }
         }
-        
-        return math.normalize(goal - position);
+
+        return goal;
     }
 
     protected override void OnStartRunning()
     {
-        //veèina te funkcije se ne rab veè pomoje, ker je v onupdate prestavljen
-
-        _alloc = Allocator.TempJob;
-        _fishQuery = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<PhysicsVelocity>());
-        _predatorQuery = GetEntityQuery(typeof(Predator), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<PhysicsVelocity>());
-        
-        _fishes = _fishQuery.ToComponentDataArray<Translation>(_alloc);
-        _predators = _predatorQuery.ToComponentDataArray<Translation>(_alloc);
-        _predatorData = _predatorQuery.ToComponentDataArray<Predator>(_alloc);
-
-        float3 currentPosition = _predators[0].Value;
-        _attackVector = AttackCenter(currentPosition);
-        // _attackVector = AttackClosest(currentPosition);
-        // _attackVector = AttackIsolated(currentPosition);
-
-        _fishes.Dispose();
-        _predators.Dispose();
-        _predatorData.Dispose();
+        _timer = 0.0f;
+        _activeTimer = false;
+        _deadFishIds = new ArrayList();
     }
     
     private bool IsFishInHuntingRadius()
@@ -129,6 +146,11 @@ public class PredatorSystem : SystemBase
         {
             if (math.distance(fish.Value, currentPosition) < _predatorData[0].HuntingRadius)
             {
+                if (!_activeTimer)
+                {
+                    _isHunting = true;
+                }
+                
                 return true;
             }
         }
@@ -138,63 +160,139 @@ public class PredatorSystem : SystemBase
 
     protected override void OnUpdate()
     {
-
-        //dodani usi queriji
+        // Debug.Log($"Is hunting: {_isHunting}");
+        // Debug.Log($"Active timer: {_activeTimer}");
+        // Debug.Log($"Timer: {_timer}");
+        
+        // Dodani usi queriji.
         _alloc = Allocator.TempJob;
+        EntityCommandBuffer entityCommandBuffer = new EntityCommandBuffer(_alloc);
         _fishQuery = GetEntityQuery(typeof(Fish), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Movement>());
         _predatorQuery = GetEntityQuery(typeof(Predator), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Movement>());
 
         _fishes = _fishQuery.ToComponentDataArray<Translation>(_alloc);
+        _fishData = _fishQuery.ToComponentDataArray<Fish>(_alloc);
+        _fishesEntities = _fishQuery.ToEntityArray(_alloc);
+        
         _predators = _predatorQuery.ToComponentDataArray<Translation>(_alloc);
         _predatorData = _predatorQuery.ToComponentDataArray<Predator>(_alloc);
 
         float deltaTime = 1f;
-        float3 drive = _attackVector;
         float acceleration = IsFishInHuntingRadius()
             ? _predatorData[0].HuntingAcceleration
             : _predatorData[0].MaxAcceleration;
         
-        //Ker klièem AttackClosest znotrej tega, je treba dat withoutburst
+        if (_activeTimer)
+        {
+            _timer += deltaTime;
+        }
+        
+        // Ker klicem AttackClosest znotrej tega, je treba dat withoutburst
         Entities.WithoutBurst().ForEach((ref Movement velocity, ref Predator predator,ref Rotation rotation, in Translation trans) =>
         {
-            //raèunanje driva usak frame za usak predator
-            drive = AttackClosest(trans.Value);
+            int confusabilityCount = 0;
 
-            //Debug.Log("speed: " + drive);
+            float distToDesiredPrey = math.distance(trans.Value, predator.HuntedFish.Position);
 
-            if (math.length(drive) > acceleration)
+            if (distToDesiredPrey <= predator.CatchDistance)
             {
-                drive = math.normalize(drive) * acceleration;
+                for (int i = 0; i < _fishes.Length; i++)
+                {
+                    float dist = math.distance(trans.Value, _fishes[i].Value);
+                    
+                    if (dist < predator.ConfusabilityRadius)
+                    {
+                        confusabilityCount++;
+                    }
+                }
+                
+                double probsOfKill = 1/confusabilityCount;
+                
+                float rand = Random.value;
+                
+                // Debug.Log($"Random: {Random.value}");
+                
+                if (rand <= probsOfKill)
+                {
+                    _deadFishIds.Add(predator.HuntedFish.Id);
+                    _activeTimer = true;
+                    _isHunting = false;
+                    Debug.Log($"Attack successful");
+                }
+                else
+                {
+                    // The predator stops hunting and waits for 30s in between every attack.
+                    _activeTimer = true;
+                    _isHunting = false;
+                    Debug.Log($"Attack not successful");
+                }
+            }
+
+            if (_timer > predator.RefocusTime)
+            {
+                _timer = 0.0f;
+                _activeTimer = false;
+                _isHunting = true;
             }
             
-            velocity.Linear += drive * deltaTime;
-
-            if(math.length(velocity.Linear) > predator.MaxSpeed)
+            if (_isHunting)
             {
-                velocity.Linear = math.normalize(velocity.Linear) * predator.MaxSpeed;
-            }
+                predator.HuntedFish = predator.Mode switch
+                {
+                    0 => AttackClosest(trans.Value),
+                    1 => AttackCenter(trans.Value),
+                    _ => AttackIsolated(trans.Value)
+                };
+                
+                float3 drive = math.normalize(predator.HuntedFish.Position - trans.Value);
             
-            if (math.length(velocity.Linear) < predator.MinSpeed)
-            {
-                velocity.Linear = math.normalize(velocity.Linear) * predator.MinSpeed;
-            }
+                if (math.length(drive) > acceleration)
+                {
+                    drive = math.normalize(drive) * acceleration;
+                }
+            
+                velocity.Linear += drive * deltaTime;
 
-            //kopirana koda iz fishsystem da se predator obraèa
-            rotation.Value = quaternion.LookRotation(velocity.Linear, math.up());
-            rotation.Value = math.mul(rotation.Value, quaternion.Euler(0f, 1.57f, 0f));
+                if(math.length(velocity.Linear) > predator.MaxSpeed)
+                {
+                    velocity.Linear = math.normalize(velocity.Linear) * predator.MaxSpeed;
+                }
+            
+                if (math.length(velocity.Linear) < predator.MinSpeed)
+                {
+                    velocity.Linear = math.normalize(velocity.Linear) * predator.MinSpeed;
+                }
+
+                // Kopirana koda iz fishsystem da se predator obraca,
+                rotation.Value = quaternion.LookRotation(velocity.Linear, math.up());
+                rotation.Value = math.mul(rotation.Value, quaternion.Euler(0f, 1.57f, 0f));
+            }
 
         }).Run();
+        
+        Entities.WithoutBurst().ForEach((Entity entity, ref Fish fishy, ref Rotation rotation, ref Movement velocity) =>
+        {
+            if (_deadFishIds.Count > 0 && _deadFishIds.Contains(fishy.id))
+            {
+                // Debug.Log($"Dead fish id {fishy.id}");
+                UIManager.instance.IncreaseCount();
+                entityCommandBuffer.RemoveComponent<Fish>(entity);
+                rotation.Value = math.mul(rotation.Value, quaternion.Euler(1.57f, 0f, 0f));
+                velocity.Linear = 0f;
+            }
+        }).Run();
+        
+        // Debug.Log(_deadFishIds.Count);
 
-        //disposi da ni memory leaka
+        // Disposi da ni memory leaka.
         _fishes.Dispose();
+        _fishData.Dispose();
         _predators.Dispose();
         _predatorData.Dispose();
-    }
-
-    protected override void OnDestroy()
-    {
-       // _fishes.Dispose();
-        //_predators.Dispose();
-        //_predatorData.Dispose();
+        _fishesEntities.Dispose();
+        
+        entityCommandBuffer.Playback(EntityManager);
+        entityCommandBuffer.Dispose();
+        _deadFishIds.Clear();
     }
 }

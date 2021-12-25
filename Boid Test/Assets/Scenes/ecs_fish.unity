@@ -820,6 +820,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7656306948700646809, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
+      propertyPath: Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7656306948700646809, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
       propertyPath: Speed
       value: 100
       objectReference: {fileID: 0}
@@ -832,8 +836,20 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7656306948700646809, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
+      propertyPath: RefocusTime
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 7656306948700646809, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
+      propertyPath: CatchDistance
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7656306948700646809, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
       propertyPath: MaxAcceleration
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7656306948700646809, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
+      propertyPath: ConfusabilityRadius
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 7656306948700646809, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
       propertyPath: HuntingAcceleration
