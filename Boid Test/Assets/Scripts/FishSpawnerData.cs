@@ -17,6 +17,7 @@ public struct FishSpawnerData : IComponentData
     public float cohRadius;
     public float escRadius;
     public float escWeight;
+    public float noise;
 
     public float FOV;
 }

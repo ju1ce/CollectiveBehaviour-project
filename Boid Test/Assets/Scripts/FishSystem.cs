@@ -11,7 +11,7 @@ public partial class FishSystem : SystemBase
     private EntityQuery query;
     private EntityQuery predatorQuery;
 
-    private bool disabled = false;
+    private bool disabled = true;
 
     protected override void OnUpdate()
     {

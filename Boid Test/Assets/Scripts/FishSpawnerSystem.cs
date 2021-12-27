@@ -20,7 +20,7 @@ public partial class FishSpawnerSystem : SystemBase
         EntityCommandBuffer.ParallelWriter commandBuffer = entityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         float Start = 0.0f;
-        float Step = 2f;
+        float Step = 5f;
 
         Entities
             .WithBurst()
@@ -63,7 +63,8 @@ public partial class FishSpawnerSystem : SystemBase
                             coh_rad = fishSpawnerData.cohRadius,
                             coh_weight = fishSpawnerData.cohWeight,
                             esc_rad = fishSpawnerData.escRadius,
-                            esc_weight = fishSpawnerData.escWeight
+                            esc_weight = fishSpawnerData.escWeight,
+                            noise_weight = fishSpawnerData.noise
                         });
                     }
 

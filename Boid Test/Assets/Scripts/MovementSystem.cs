@@ -9,7 +9,7 @@ public partial class MovementSystem : SystemBase
 {
     protected override void OnCreate()
     {
-        World.GetExistingSystem<FixedStepSimulationSystemGroup>().Timestep = 0.1f;
+        World.GetExistingSystem<FixedStepSimulationSystemGroup>().Timestep = 0.05f;
     }
 
     protected override void OnUpdate()

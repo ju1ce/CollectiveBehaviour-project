@@ -28,4 +28,6 @@ public struct Fish : IComponentData
     public float esc_rad;
     public float esc_weight;
 
+    public float noise_weight;
+
 }

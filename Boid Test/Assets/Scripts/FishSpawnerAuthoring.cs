@@ -18,6 +18,7 @@ public class FishSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
     public float cohRadius = 100F;
     public float escRadius = 100F;
     public float escWeight = 5F;
+    public float noise = 1f;
 
     public float FOV = 300;
 
@@ -44,7 +45,8 @@ public class FishSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
             cohRadius = cohRadius,
             cohWeight = cohWeight,
             escRadius = escRadius,
-            escWeight = escWeight
+            escWeight = escWeight,
+            noise = noise
 
         };
         dstManager.AddComponentData(entity, spawnerData);
