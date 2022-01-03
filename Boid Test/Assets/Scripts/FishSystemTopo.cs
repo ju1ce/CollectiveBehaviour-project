@@ -16,15 +16,13 @@ public partial class FishSystemTopo : SystemBase
 
     //public Random random;
 
-    private bool disabled = false;
-
 
     protected override void OnUpdate()
     {
         float deltaTime = 1f;
-        int numNeighbours = 5;
+        int numNeighbours = 7;
 
-        if (disabled)
+        if (!Globals.TopoSystem)
         {
             return;
         }
@@ -47,7 +45,7 @@ public partial class FishSystemTopo : SystemBase
             .ForEach((Entity entity, ref Rotation rotation, ref Movement velocity, ref Fish fishy, in Translation trans) =>
             {
                 //pseudorandom seed
-                uint seed = (uint)(233*trans.Value.x+3221*trans.Value.z+cur_time+12665);
+                uint seed = (uint)(233*trans.Value.x+3221*trans.Value.z+cur_time+12665)+1;
                 Random random = new Random(seed);
 
                 float3 esc_drive = new float3(0f, 0f, 0f);
@@ -126,6 +124,9 @@ public partial class FishSystemTopo : SystemBase
                 float3 noise_drive = new float3(0f, 0f, 0f);
 
                 float sep_count = 0;
+                float sep_max = float.MaxValue;
+
+                float coh_size = 0;
 
                 for (int i = 0; i < nearestFish.Length; i++)
                 {
@@ -135,35 +136,50 @@ public partial class FishSystemTopo : SystemBase
 
                     ali_drive += fishVelocity[(int)nearestFish.ElementAt(i)[0]].Linear;
 
-                    sep_drive += -dir;
-
+                    //if(dist < sep_max)
+                    //{
+                    //   sep_drive = -dir;
+                    //   sep_max = dist;
+                    //}
+                    if (dist <= fishy.sep_rad)
+                    {
+                        sep_drive += (-dir * (1 - (dist / fishy.sep_rad)));
+                        sep_count++;
+                    }
 
                     coh_drive += dir * dist;
+                    coh_size += dist;
 
                 }
                 ali_drive = numNeighbours == 0 ? ali_drive * 0f : ali_drive / numNeighbours;
                 ali_drive -= velocity.Linear;
 
-                sep_drive = numNeighbours == 0 ? sep_drive * 0f : sep_drive / numNeighbours;
+                sep_drive = sep_count == 0 ? sep_drive * 0f : sep_drive / sep_count;
 
                 coh_drive = numNeighbours == 0 ? coh_drive * 0f : coh_drive / numNeighbours;
 
-                noise_drive.xz = random.NextFloat2()*2 - new float2(1,1);
+                noise_drive.xyz = random.NextFloat3()*2 - new float3(1,1,1);
 
                 nearestFish.Dispose();
 
 
-                sep_drive = new float3(0f, 0f, 0f);
+                //sep_drive = new float3(0f, 0f, 0f);
                 //ali_drive = new float3(0f, 0f, 0f);
-                coh_drive = new float3(0f, 0f, 0f);
+                //coh_drive = new float3(0f, 0f, 0f);
 
                 //calculate drive
                 float3 drive = fishy.noise_weight * noise_drive + fishy.sep_weight * sep_drive + fishy.ali_weight * ali_drive + fishy.coh_weight * coh_drive + esc_drive * fishy.esc_weight;
 
+                if (math.length(drive) > fishy.max_accel)
+                {
+                    drive = math.normalize(drive) * fishy.max_accel;
+                }
                 velocity.Linear += drive * deltaTime;
 
-                velocity.Linear = math.normalize(velocity.Linear) * fishy.max_speed;
-
+                if (math.length(velocity.Linear) > fishy.max_speed)
+                {
+                    velocity.Linear = math.normalize(velocity.Linear) * fishy.max_speed;
+                }
                 if (math.length(velocity.Linear) < fishy.min_speed)
                 {
                     velocity.Linear = math.normalize(velocity.Linear) * fishy.min_speed;

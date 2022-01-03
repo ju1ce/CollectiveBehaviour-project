@@ -3,6 +3,15 @@ using Unity.Entities;
 using UnityEngine;
 using Unity.Mathematics;
 
+
+public static class Globals
+{
+    public static bool ZoneSystem;
+    public static bool TopoSystem;
+    public static int TotalFish;
+}
+
+
 public class FishSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
 {
     public GameObject Prefab;
@@ -22,6 +31,9 @@ public class FishSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
 
     public float FOV = 300;
 
+    public bool ZoneBasedBehaviour;
+    public bool TopologicalBasedBehaviour;
+
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
@@ -30,6 +42,12 @@ public class FishSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
+        Globals.ZoneSystem = ZoneBasedBehaviour;
+        Globals.TopoSystem = TopologicalBasedBehaviour;
+        Globals.TotalFish = Count * Count;
+
+        //UIManager.instance.SetTotalFish(Count * Count);
+
         var spawnerData = new FishSpawnerData
         {
             Prefab = conversionSystem.GetPrimaryEntity(Prefab),

@@ -13,16 +13,22 @@ public class UIManager : MonoBehaviour
     public Text countText;
 
     private int count;
+    private int totalFish;
     
 
     private void DisplayCount()
     {
-        countText.text = "Fish caught: " + count;
+        countText.text = "Fish caught: " + count + "\n Fish alive: " + (totalFish-count);
     }
     public void IncreaseCount()
     {
         count++;
         DisplayCount();
+    }
+
+    public void SetTotalFish(int num)
+    {
+        totalFish = num;
     }
     // Start is called before the first frame update
     void Start()
@@ -30,6 +36,7 @@ public class UIManager : MonoBehaviour
         //Time.timeScale = 10f;
         instance = this;
         count = 0;
+        totalFish = Globals.TotalFish;
         DisplayCount();
     }
 

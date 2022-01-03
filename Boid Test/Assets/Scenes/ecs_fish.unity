@@ -690,7 +690,7 @@ MonoBehaviour:
   minSpeed: 2
   maxSpeed: 4
   maxAccel: 2
-  sepWeight: 5
+  sepWeight: 50
   sepRadius: 5
   aliWeight: 0.3
   aliRadius: 25
@@ -698,7 +698,10 @@ MonoBehaviour:
   cohRadius: 100
   escRadius: 100
   escWeight: 5
+  noise: 1
   FOV: 300
+  ZoneBasedBehaviour: 0
+  TopologicalBasedBehaviour: 1
 --- !u!114 &1972623419
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -849,7 +852,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7656306948700646809, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
       propertyPath: ConfusabilityRadius
-      value: 25
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7656306948700646809, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
       propertyPath: HuntingAcceleration
@@ -861,7 +864,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7656306948700646810, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 15.8
+      value: 343
       objectReference: {fileID: 0}
     - target: {fileID: 7656306948700646810, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
       propertyPath: m_LocalPosition.y

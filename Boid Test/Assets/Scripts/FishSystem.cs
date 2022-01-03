@@ -11,11 +11,9 @@ public partial class FishSystem : SystemBase
     private EntityQuery query;
     private EntityQuery predatorQuery;
 
-    private bool disabled = true;
-
     protected override void OnUpdate()
     {
-        if(disabled)
+        if(!Globals.ZoneSystem)
         {
             return;
         }
@@ -52,11 +50,7 @@ public partial class FishSystem : SystemBase
                     float3 dir = predatorLocation[i].Value - trans.Value;
                     float dist = math.length(dir);
                     dir = math.normalize(dir);
-
-                    if (dist < 1f)
-                    {
-                        fishy.dead = true;
-                    }       
+    
 
                     float fov = math.dot(dir, math.normalize(velocity.Linear));
                     if (fov < fishy.fov)
@@ -129,3 +123,4 @@ public partial class FishSystem : SystemBase
             }).ScheduleParallel();
     }
 }
+
