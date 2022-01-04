@@ -27,6 +27,7 @@ public struct FishPositionAndId
 public class PredatorSystem : SystemBase
 {
     private float _timer;
+    private float _huntingTimer;
     private bool _activeTimer;
     private bool _isHunting;
     private ArrayList _deadFishIds;
@@ -134,6 +135,7 @@ public class PredatorSystem : SystemBase
     protected override void OnStartRunning()
     {
         _timer = 0.0f;
+        _huntingTimer = 0.0f;
         _activeTimer = false;
         _deadFishIds = new ArrayList();
     }
@@ -237,6 +239,8 @@ public class PredatorSystem : SystemBase
             
             if (_isHunting)
             {
+                _huntingTimer += deltaTime;
+                
                 predator.HuntedFish = predator.Mode switch
                 {
                     0 => AttackClosest(trans.Value),
@@ -266,6 +270,11 @@ public class PredatorSystem : SystemBase
                 // Kopirana koda iz fishsystem da se predator obraca,
                 rotation.Value = quaternion.LookRotation(velocity.Linear, math.up());
                 rotation.Value = math.mul(rotation.Value, quaternion.Euler(0f, 1.57f, 0f));
+
+                if (_huntingTimer >= predator.HuntingTimer)
+                {
+                    _isHunting = false;
+                }
             }
 
         }).Run();

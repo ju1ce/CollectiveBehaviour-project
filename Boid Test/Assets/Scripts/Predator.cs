@@ -9,6 +9,7 @@ public struct Predator : IComponentData
     public float MinSpeed;
     public float HuntingAcceleration;
     public float HuntingRadius;
+    public float HuntingTimer;
     public float RefocusTime;
     public float ConfusabilityRadius;
     public float CatchDistance;
