@@ -3,6 +3,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
+using System.Collections.Generic;
 
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
@@ -30,15 +31,23 @@ public partial class FishSystem : SystemBase
         NativeArray<Movement> fishVelocity = query.ToComponentDataArray<Movement>(alloc);
         NativeArray<Translation> predatorLocation = predatorQuery.ToComponentDataArray<Translation>(alloc);
 
+        double cur_time = Time.ElapsedTime;
+        bool use3D = Globals.Use3D;
+
         Entities.WithBurst().WithReadOnly(fishes).WithDisposeOnCompletion(fishes)
             .WithReadOnly(fishVelocity).WithDisposeOnCompletion(fishVelocity)
             .WithReadOnly(predatorLocation).WithDisposeOnCompletion(predatorLocation)
             .ForEach((Entity entity, ref Rotation rotation, ref Movement velocity, ref Fish fishy, in Translation trans) =>
             {
+                //pseudorandom seed
+                uint seed = (uint)(233 * math.abs(trans.Value.x) + 3221 * math.abs(trans.Value.z) + cur_time + 12665) + 1;
+                Random random = new Random(seed);
+
                 float3 sep_drive = new float3(0f, 0f, 0f);
                 float3 ali_drive = new float3(0f, 0f, 0f);
                 float3 coh_drive = new float3(0f, 0f, 0f);
                 float3 esc_drive = new float3(0f, 0f, 0f);
+                float3 noise_drive = new float3(0f, 0f, 0f);
 
                 int sep_count = 0;
                 int ali_count = 0;
@@ -99,8 +108,15 @@ public partial class FishSystem : SystemBase
 
                 esc_drive = esc_count == 0 ? esc_drive * 0f : esc_drive / esc_count;
 
+
+                noise_drive.xz = random.NextFloat2() * 2 - new float2(1, 1);
+                if (use3D)
+                {
+                    noise_drive.y = random.NextFloat() * 2 - 1f;
+                }
+
                 //calculate drive
-                float3 drive = fishy.sep_weight * sep_drive + fishy.ali_weight * ali_drive + fishy.coh_weight * coh_drive + esc_drive * fishy.esc_weight;
+                float3 drive = fishy.noise_weight * noise_drive + fishy.sep_weight * sep_drive + fishy.ali_weight * ali_drive + fishy.coh_weight * coh_drive + esc_drive * fishy.esc_weight;
 
                 if(math.length(drive) > fishy.max_accel)
                 {

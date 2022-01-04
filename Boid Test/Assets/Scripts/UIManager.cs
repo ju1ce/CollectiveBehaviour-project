@@ -14,11 +14,12 @@ public class UIManager : MonoBehaviour
 
     private int count;
     private int totalFish;
+    private float time; 
     
 
     private void DisplayCount()
     {
-        countText.text = "Fish caught: " + count + "\n Fish alive: " + (totalFish-count);
+        countText.text = "Fish caught: " + count + "\nFish alive: " + (totalFish - count) + "\nExecution time: " + time.ToString("n1") + "s";
     }
     public void IncreaseCount()
     {
@@ -34,6 +35,8 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         //Time.timeScale = 10f;
+
+        time = 0f;
         instance = this;
         count = 0;
         totalFish = Globals.TotalFish;
@@ -43,6 +46,7 @@ public class UIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        time += Time.deltaTime;
+        DisplayCount();
     }
 }
