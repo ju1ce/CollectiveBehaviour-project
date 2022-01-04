@@ -35,19 +35,15 @@ public partial class FishSpawnerSystem : SystemBase
                     {
                         Entity instance = commandBuffer.Instantiate(entityInQueryIndex, fishSpawnerData.Prefab);
 
-                        float3 position = math.transform(location.Value, new float3(Start + x * Step, 0f, Start + y * Step)); // todo
-
-                        //var position = math.transform(location.Value, new float3(x * 1.3F, noise.cnoise(new float2(x, y) * 0.21F) * 2, y * 1.3F));
+                        float3 position = math.transform(location.Value, new float3(Start + x * Step, 0f, Start + y * Step)); 
 
                         commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation { Value = position });
 
                         quaternion rotVal = quaternion.AxisAngle(math.up(), rnd.NextFloat(1.40f, 1.74f));
                         commandBuffer.SetComponent(entityInQueryIndex, instance, new Rotation { Value = rotVal });
 
-                        //commandBuffer.AddComponent(entityInQueryIndex, instance, new Movement());
                         commandBuffer.SetComponent(entityInQueryIndex, instance, new Movement { Linear = math.mul(rotVal, math.left()) });
 
-                        //commandBuffer.AddComponent(entityInQueryIndex, instance, new Fish());
                         commandBuffer.SetComponent(entityInQueryIndex, instance, new Fish
                         {
                             dead = false,

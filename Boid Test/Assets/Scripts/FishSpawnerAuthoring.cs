@@ -9,6 +9,7 @@ public static class Globals
     public static bool ZoneSystem;
     public static bool TopoSystem;
     public static int TotalFish;
+    public static bool Use3D;
 }
 
 
@@ -33,6 +34,7 @@ public class FishSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
 
     public bool ZoneBasedBehaviour;
     public bool TopologicalBasedBehaviour;
+    public bool Use3D;
 
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -45,6 +47,7 @@ public class FishSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
         Globals.ZoneSystem = ZoneBasedBehaviour;
         Globals.TopoSystem = TopologicalBasedBehaviour;
         Globals.TotalFish = Count * Count;
+        Globals.Use3D = Use3D;
 
         //UIManager.instance.SetTotalFish(Count * Count);
 

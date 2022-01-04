@@ -5,16 +5,12 @@ using Unity.Transforms;
 using Unity.Collections;
 using System.Collections.Generic;
 
-//using UnityEngine;
-
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class FishSystemTopo : SystemBase
 {
     private EntityQuery query;
     private EntityQuery predatorQuery;
-
-    //public Random random;
 
 
     protected override void OnUpdate()
@@ -38,6 +34,7 @@ public partial class FishSystemTopo : SystemBase
         NativeArray<Translation> predatorLocation = predatorQuery.ToComponentDataArray<Translation>(alloc);
 
         double cur_time = Time.ElapsedTime;
+        bool use3D = Globals.Use3D;
 
         Entities.WithBurst().WithReadOnly(fishes).WithDisposeOnCompletion(fishes)
             .WithReadOnly(fishVelocity).WithDisposeOnCompletion(fishVelocity)
@@ -45,7 +42,7 @@ public partial class FishSystemTopo : SystemBase
             .ForEach((Entity entity, ref Rotation rotation, ref Movement velocity, ref Fish fishy, in Translation trans) =>
             {
                 //pseudorandom seed
-                uint seed = (uint)(233*trans.Value.x+3221*trans.Value.z+cur_time+12665)+1;
+                uint seed = (uint)(233 * math.abs(trans.Value.x) + 3221 * math.abs(trans.Value.z) + cur_time + 12665) + 1;
                 Random random = new Random(seed);
 
                 float3 esc_drive = new float3(0f, 0f, 0f);
@@ -136,15 +133,10 @@ public partial class FishSystemTopo : SystemBase
 
                     ali_drive += fishVelocity[(int)nearestFish.ElementAt(i)[0]].Linear;
 
-                    //if(dist < sep_max)
-                    //{
-                    //   sep_drive = -dir;
-                    //   sep_max = dist;
-                    //}
-                    if (dist <= fishy.sep_rad)
+                    if(dist < sep_max && dist<= fishy.sep_rad)
                     {
-                        sep_drive += (-dir * (1 - (dist / fishy.sep_rad)));
-                        sep_count++;
+                        sep_drive = (-dir * (1 - (dist / fishy.sep_rad)));
+                        sep_max = dist;
                     }
 
                     coh_drive += dir * dist;
@@ -154,18 +146,17 @@ public partial class FishSystemTopo : SystemBase
                 ali_drive = numNeighbours == 0 ? ali_drive * 0f : ali_drive / numNeighbours;
                 ali_drive -= velocity.Linear;
 
-                sep_drive = sep_count == 0 ? sep_drive * 0f : sep_drive / sep_count;
+                sep_drive = sep_max == float.MaxValue ? sep_drive * 0f : sep_drive;
 
                 coh_drive = numNeighbours == 0 ? coh_drive * 0f : coh_drive / numNeighbours;
 
-                noise_drive.xyz = random.NextFloat3()*2 - new float3(1,1,1);
+                noise_drive.xz = random.NextFloat2() * 2 - new float2(1, 1);
+                if (use3D)
+                {
+                    noise_drive.y = random.NextFloat() * 2 - 1f;
+                }
 
                 nearestFish.Dispose();
-
-
-                //sep_drive = new float3(0f, 0f, 0f);
-                //ali_drive = new float3(0f, 0f, 0f);
-                //coh_drive = new float3(0f, 0f, 0f);
 
                 //calculate drive
                 float3 drive = fishy.noise_weight * noise_drive + fishy.sep_weight * sep_drive + fishy.ali_weight * ali_drive + fishy.coh_weight * coh_drive + esc_drive * fishy.esc_weight;

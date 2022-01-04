@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4493416, g: 0.49941778, b: 0.5757042, a: 1}
+  m_IndirectSpecularColor: {r: 0.44934195, g: 0.49941814, b: 0.57570493, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -141,7 +141,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &474051753
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -390,8 +390,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 150, y: -50}
-  m_SizeDelta: {x: 250, y: 70}
+  m_AnchoredPosition: {x: 205, y: -105}
+  m_SizeDelta: {x: 400, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1017778671
 MonoBehaviour:
@@ -690,7 +690,7 @@ MonoBehaviour:
   minSpeed: 2
   maxSpeed: 4
   maxAccel: 2
-  sepWeight: 50
+  sepWeight: 5
   sepRadius: 5
   aliWeight: 0.3
   aliRadius: 25
@@ -702,6 +702,7 @@ MonoBehaviour:
   FOV: 300
   ZoneBasedBehaviour: 0
   TopologicalBasedBehaviour: 1
+  Use3D: 1
 --- !u!114 &1972623419
 MonoBehaviour:
   m_ObjectHideFlags: 0
