@@ -12,6 +12,8 @@ public class CameraFollow : MonoBehaviour
     public Entity predator;
     public float3 offset;
 
+    public float3 velocity;
+
     private EntityManager manager;
     // Start is called before the first frame update
     private void Awake()
@@ -34,6 +36,13 @@ public class CameraFollow : MonoBehaviour
         }
         Translation predatorPos = manager.GetComponentData<Translation>(predator);
         float3 newPos = predatorPos.Value + offset;
-        transform.position = 0.98f * transform.position + 0.02f * new Vector3(newPos.x,newPos.y,newPos.z);// + new Vector3(offset.x,offset.y,offset.z);
+
+        float3 newVelocity = -transform.position + new Vector3(newPos.x, newPos.y, newPos.z);
+
+        velocity = 0.9f * velocity + 0.1f * newVelocity;
+
+        transform.position += new Vector3(velocity.x, velocity.y, velocity.z);
+
+        //transform.position = 0.95f * transform.position + 0.05f * new Vector3(newPos.x,newPos.y,newPos.z);// + new Vector3(offset.x,offset.y,offset.z);
     }
 }

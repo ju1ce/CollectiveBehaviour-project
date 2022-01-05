@@ -20,16 +20,18 @@ public partial class FishSpawnerSystem : SystemBase
         EntityCommandBuffer.ParallelWriter commandBuffer = entityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         float Start = 0.0f;
-        float Step = 1f;
+        float Step = 5f;
 
         bool Use3d = Globals.Use3D;
+        System.DateTime time = System.DateTime.Now;
+        int seed = time.Millisecond + time.Second + time.Hour;
 
         Entities
             .WithBurst()
             .ForEach((Entity entity, int entityInQueryIndex, in FishSpawnerData fishSpawnerData, in LocalToWorld location) =>
             {
-                uint seed = (uint)(2);
-                Random rnd = new Random(seed);
+                //uint seed = (uint)(2);
+                Random rnd = new Random((uint)seed);
 
                 for (var x = 0; x < fishSpawnerData.Count; x++)
                 {
