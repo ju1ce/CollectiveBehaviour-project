@@ -240,10 +240,7 @@ public class PredatorSystem : SystemBase
                 
                 float3 drive = math.normalize(predator.HuntedFish.Position - trans.Value);
             
-                if (math.length(drive) > acceleration)
-                {
-                    drive = math.normalize(drive) * acceleration;
-                }
+                drive = math.normalize(drive) * acceleration;
             
                 velocity.Linear += drive * deltaTime;
 
