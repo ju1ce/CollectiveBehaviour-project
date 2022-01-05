@@ -686,7 +686,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 2880431655494859251, guid: c235447aacdc17b41a2a5303e228b79f, type: 3}
-  Count: 20
+  Count: 10
   minSpeed: 2
   maxSpeed: 4
   maxAccel: 2
@@ -698,11 +698,11 @@ MonoBehaviour:
   cohRadius: 100
   escRadius: 100
   escWeight: 5
-  noise: 1
+  noise: 0.2
   FOV: 300
   ZoneBasedBehaviour: 0
   TopologicalBasedBehaviour: 1
-  Use3D: 1
+  Use3D: 0
 --- !u!114 &1972623419
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -857,7 +857,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7656306948700646809, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
       propertyPath: ConfusabilityRadius
-      value: 0
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 7656306948700646809, guid: 0ce1ce33c47218d4fa2d9d7f5ec49a8a, type: 3}
       propertyPath: HuntingAcceleration

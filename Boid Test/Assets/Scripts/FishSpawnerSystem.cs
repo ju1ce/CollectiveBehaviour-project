@@ -20,13 +20,15 @@ public partial class FishSpawnerSystem : SystemBase
         EntityCommandBuffer.ParallelWriter commandBuffer = entityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         float Start = 0.0f;
-        float Step = 5f;
+        float Step = 1f;
+
+        bool Use3d = Globals.Use3D;
 
         Entities
             .WithBurst()
             .ForEach((Entity entity, int entityInQueryIndex, in FishSpawnerData fishSpawnerData, in LocalToWorld location) =>
             {
-                uint seed = (uint)(1);
+                uint seed = (uint)(2);
                 Random rnd = new Random(seed);
 
                 for (var x = 0; x < fishSpawnerData.Count; x++)
@@ -40,6 +42,12 @@ public partial class FishSpawnerSystem : SystemBase
                         commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation { Value = position });
 
                         quaternion rotVal = quaternion.AxisAngle(math.up(), rnd.NextFloat(1.40f, 1.74f));
+
+                        if (Use3d)
+                        {
+                            rotVal = math.mul(rotVal, quaternion.AxisAngle(math.forward(), rnd.NextFloat(-0.15f, 0.15f)));
+                        }
+
                         commandBuffer.SetComponent(entityInQueryIndex, instance, new Rotation { Value = rotVal });
 
                         commandBuffer.SetComponent(entityInQueryIndex, instance, new Movement { Linear = math.mul(rotVal, math.left()) });

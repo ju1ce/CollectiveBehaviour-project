@@ -5,6 +5,8 @@ using Unity.Transforms;
 using Unity.Collections;
 using System.Collections.Generic;
 
+using UnityEngine;
+
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class FishSystemTopo : SystemBase
@@ -43,7 +45,7 @@ public partial class FishSystemTopo : SystemBase
             {
                 //pseudorandom seed
                 uint seed = (uint)(233 * math.abs(trans.Value.x) + 3221 * math.abs(trans.Value.z) + cur_time + 12665) + 1;
-                Random random = new Random(seed);
+                Unity.Mathematics.Random random = new Unity.Mathematics.Random(seed);
 
                 float3 esc_drive = new float3(0f, 0f, 0f);
 
@@ -83,6 +85,9 @@ public partial class FishSystemTopo : SystemBase
                         continue;
                     }
 
+                    //Debug.Log("MaxID: " + maxId + " MaxVal: " + maxVal);
+                    //Debug.Log("Distance for fishes " + fishy.id + " to " + i + " is " + dist);
+
                     if (maxVal == 0 && maxId < numNeighbours)
                     {
                         nearestFish.Add(new float2(i, dist));
@@ -101,8 +106,11 @@ public partial class FishSystemTopo : SystemBase
                     }
                     else if (dist < maxVal)
                     {
-                        nearestFish.RemoveAt(maxId);
+                        //Debug.Log("Removing ID " + maxId + " swapping for " + i);
+                        nearestFish.RemoveAtSwapBack(maxId);
                         nearestFish.Add(new float2(i, dist));
+
+                        maxVal = 0;
 
                         for (int j = 0; j < numNeighbours; j++)
                         {
@@ -130,6 +138,8 @@ public partial class FishSystemTopo : SystemBase
                     float3 dir = fishes[(int)nearestFish.ElementAt(i)[0]].Value - trans.Value;
                     float dist = math.length(dir);
                     dir = math.normalize(dir);
+
+                    //Debug.Log("Distance for nearest fishes " + fishy.id + " to " + (int)nearestFish.ElementAt(i)[0] + " is " + dist);
 
                     ali_drive += fishVelocity[(int)nearestFish.ElementAt(i)[0]].Linear;
 

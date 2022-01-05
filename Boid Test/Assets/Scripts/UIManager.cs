@@ -19,7 +19,7 @@ public class UIManager : MonoBehaviour
 
     private void DisplayCount()
     {
-        countText.text = "Fish caught: " + count + "\nFish alive: " + (totalFish - count) + "\nExecution time: " + time.ToString("n1") + "s";
+        countText.text = "Fish caught: " + count + "\nFish alive: " + (totalFish - count) + "\nExecution time: " + (time/Globals.timestep).ToString("n1") + "s";
     }
     public void IncreaseCount()
     {

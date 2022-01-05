@@ -124,6 +124,7 @@ MonoBehaviour:
   coh_weight: 0
   esc_rad: 0
   esc_weight: 0
+  noise_weight: 0
 --- !u!114 &220402341325240215
 MonoBehaviour:
   m_ObjectHideFlags: 0
