@@ -78,7 +78,7 @@ public partial class FishSystemTopo : SystemBase
 
                     float fov = math.dot(dir, math.normalize(velocity.Linear));
 
-                    if (dist == 0)
+                    if (dist == 0 || fov < fishy.fov)
                     {
                         continue;
                     }
