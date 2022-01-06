@@ -30,4 +30,6 @@ public struct Fish : IComponentData
 
     public float noise_weight;
 
+    public int topo_neighbours;
+
 }

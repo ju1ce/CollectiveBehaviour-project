@@ -70,7 +70,8 @@ public partial class FishSpawnerSystem : SystemBase
                             coh_weight = fishSpawnerData.cohWeight,
                             esc_rad = fishSpawnerData.escRadius,
                             esc_weight = fishSpawnerData.escWeight,
-                            noise_weight = fishSpawnerData.noise
+                            noise_weight = fishSpawnerData.noise,
+                            topo_neighbours = fishSpawnerData.topo_neighbours
                         });
                     }
 

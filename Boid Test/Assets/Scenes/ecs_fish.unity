@@ -707,7 +707,8 @@ MonoBehaviour:
   FOV: 300
   ZoneBasedBehaviour: 1
   TopologicalBasedBehaviour: 0
-  Use3D: 0
+  Use3D: 1
+  topo_neighbours: 7
 --- !u!114 &1972623419
 MonoBehaviour:
   m_ObjectHideFlags: 0

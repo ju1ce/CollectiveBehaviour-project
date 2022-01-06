@@ -10,7 +10,7 @@ public static class Globals
     public static bool TopoSystem;
     public static int TotalFish;
     public static bool Use3D;
-    public static float timestep = 0.05f;
+    public static float timestep = 0.1f;
 }
 
 
@@ -36,6 +36,8 @@ public class FishSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
     public bool ZoneBasedBehaviour;
     public bool TopologicalBasedBehaviour;
     public bool Use3D;
+
+    public int topo_neighbours = 7;
 
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -68,7 +70,8 @@ public class FishSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
             cohWeight = cohWeight,
             escRadius = escRadius,
             escWeight = escWeight,
-            noise = noise
+            noise = noise,
+            topo_neighbours = topo_neighbours
 
         };
         dstManager.AddComponentData(entity, spawnerData);

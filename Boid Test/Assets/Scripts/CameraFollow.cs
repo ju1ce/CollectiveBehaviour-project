@@ -41,8 +41,11 @@ public class CameraFollow : MonoBehaviour
 
         velocity = 0.9f * velocity + 0.1f * newVelocity;
 
-        transform.position += new Vector3(velocity.x, velocity.y, velocity.z);
+        //transform.position += new Vector3(velocity.x, velocity.y, velocity.z);
 
         //transform.position = 0.95f * transform.position + 0.05f * new Vector3(newPos.x,newPos.y,newPos.z);// + new Vector3(offset.x,offset.y,offset.z);
+
+        transform.position = new Vector3(newPos.x, newPos.y, newPos.z);
+
     }
 }

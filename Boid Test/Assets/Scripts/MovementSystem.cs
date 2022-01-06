@@ -20,7 +20,7 @@ public partial class MovementSystem : SystemBase
         World.GetExistingSystem<FixedStepSimulationSystemGroup>().Timestep = Globals.timestep;
 
         System.DateTime time = System.DateTime.Now;
-        run = "run-normal-central";
+        run = "run-topo20-isolated";
         path = "Assets/results/" + run + "-" + time.Day + "_" + time.Hour + "_" + time.Minute + "_" + time.Second + "_" + ".txt";
         enabled = true;
         write = false;

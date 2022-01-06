@@ -18,7 +18,7 @@ public partial class FishSystemTopo : SystemBase
     protected override void OnUpdate()
     {
         float deltaTime = 1f;
-        int numNeighbours = 7;
+        //int numNeighbours = ;
 
         if (!Globals.TopoSystem)
         {
@@ -43,6 +43,8 @@ public partial class FishSystemTopo : SystemBase
             .WithReadOnly(predatorLocation).WithDisposeOnCompletion(predatorLocation)
             .ForEach((Entity entity, ref Rotation rotation, ref Movement velocity, ref Fish fishy, in Translation trans) =>
             {
+                int numNeighbours = fishy.topo_neighbours;
+
                 //pseudorandom seed
                 uint seed = (uint)(233 * math.abs(trans.Value.x) + 3221 * math.abs(trans.Value.z) + cur_time + 12665) + 1;
                 Unity.Mathematics.Random random = new Unity.Mathematics.Random(seed);
