@@ -12,7 +12,7 @@ public class UIManager : MonoBehaviour
 
     public Text countText;
 
-    private int count;
+    public int count;
     private int totalFish;
     private float time; 
     

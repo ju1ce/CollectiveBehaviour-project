@@ -10,7 +10,7 @@ public static class Globals
     public static bool TopoSystem;
     public static int TotalFish;
     public static bool Use3D;
-    public static float timestep = 0.02f;
+    public static float timestep = 0.05f;
 }
 
 

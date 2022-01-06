@@ -149,6 +149,12 @@ public partial class FishSystemTopo : SystemBase
                         sep_max = dist;
                     }
 
+                    //if (dist <= fishy.sep_rad)
+                    //{
+                    //   sep_drive += (-dir * (1 - (dist / fishy.sep_rad)));
+                    //    sep_count++;
+                    //}
+
                     coh_drive += dir * dist;
                     coh_size += dist;
 
@@ -157,6 +163,7 @@ public partial class FishSystemTopo : SystemBase
                 ali_drive -= velocity.Linear;
 
                 sep_drive = sep_max == float.MaxValue ? sep_drive * 0f : sep_drive;
+                //sep_drive = sep_count == 0 ? sep_drive * 0f : sep_drive / sep_count;
 
                 coh_drive = numNeighbours == 0 ? coh_drive * 0f : coh_drive / numNeighbours;
 
